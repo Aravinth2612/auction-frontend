@@ -24,10 +24,6 @@ export default function Navbar({ setPage, page, user, logout }) {
               Home
             </button>
 
-            <button onClick={() => setPage('browse')} className={linkClass('browse')}>
-              Browse
-            </button>
-
             {user?.role === "seller" && (
               <button onClick={() => setPage('seller')} className={linkClass('seller')}>
                 Seller

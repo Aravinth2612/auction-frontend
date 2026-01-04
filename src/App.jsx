@@ -37,12 +37,6 @@ export default function App() {
       <Navbar setPage={setPage} page={page} user={user} logout={logout} />
       <div className="container mx-auto px-6 py-6">
         {page === 'home' && (
-          <ItemList
-            setPage={setPage}
-            setSelectedAuction={setSelectedAuction}
-          />
-        )}
-        {page === 'browse' && (
           <Browse
             setPage={setPage}
             setSelectedAuction={setSelectedAuction}

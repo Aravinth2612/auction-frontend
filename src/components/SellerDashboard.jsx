@@ -19,14 +19,17 @@ export default function SellerDashboard({
 
   const [products, setProducts] = useState([]);
   const [auctions, setAuctions] = useState([]);
+
   const [form, setForm] = useState({
     title: "",
     description: "",
-    image: "",
+    image: null,     // file
     category: ""
   });
+
   const [auctionModal, setAuctionModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [auctionForm, setAuctionForm] = useState({
     startingPrice: "",
     endTime: ""
@@ -53,12 +56,21 @@ export default function SellerDashboard({
     if (!token) return alert("Login as seller");
 
     try {
-      await axios.post(`${API_URL}/products`, form, {
-        headers: { Authorization: `Bearer ${token}` }
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("category", form.category);
+      formData.append("image", form.image);
+
+      await axios.post(`${API_URL}/products`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
       });
 
       alert("Product created");
-      setForm({ title: "", description: "", image: "", category: "" });
+      setForm({ title: "", description: "", image: null, category: "" });
       fetchData();
     } catch (e) {
       alert(e.response?.data?.error || "Error creating product");
@@ -107,21 +119,50 @@ export default function SellerDashboard({
         <h3 className="text-xl text-amber-400 mb-4">Create Product</h3>
 
         <div className="grid gap-3">
-          {["title", "image", "category"].map((field) => (
-            <input
-              key={field}
-              className="bg-zinc-800 text-zinc-200 p-2 rounded"
-              placeholder={field.toUpperCase()}
-              value={form[field]}
-              onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-            />
-          ))}
 
+          {/* TITLE */}
+          <input
+            className="bg-zinc-800 text-zinc-200 p-2 rounded"
+            placeholder="TITLE"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+          />
+
+          {/* IMAGE FILE */}
+          <input
+            type="file"
+            accept="image/*"
+            className="bg-zinc-800 text-zinc-200 p-2 rounded"
+            onChange={(e) =>
+              setForm({ ...form, image: e.target.files[0] })
+            }
+          />
+
+          {/* CATEGORY SELECT */}
+          <select
+            className="bg-zinc-800 text-zinc-200 p-2 rounded"
+            value={form.category}
+            onChange={(e) =>
+              setForm({ ...form, category: e.target.value })
+            }
+          >
+            <option value="">Select Category</option>
+            <option value="All Auction">All Auction</option>
+            <option value="Standard Auction">Standard Auction</option>
+            <option value="Sealed Auction">Sealed Auction</option>
+            <option value="Reverse Auction">Reverse Auction</option>
+          </select>
+
+          {/* DESCRIPTION */}
           <textarea
             className="bg-zinc-800 text-zinc-200 p-2 rounded"
             placeholder="Description"
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
           />
 
           <button
@@ -143,7 +184,7 @@ export default function SellerDashboard({
           {products.map((p) => (
             <div
               key={p._id}
-              className="bg-zinc-800 rounded p-4 flex justify-between items-center"
+              className="bg-zinc-800 rounded p-4 flex justify-between items-center mb-3"
             >
               <div>
                 <p className="text-white font-medium">{p.title}</p>
@@ -168,7 +209,7 @@ export default function SellerDashboard({
             <div
               key={a._id}
               onClick={() => openDetails(a._id)}
-              className="bg-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-700 transition"
+              className="bg-zinc-800 rounded-lg p-4 cursor-pointer hover:bg-zinc-700 transition mb-3"
             >
               <div className="flex justify-between text-white">
                 <span>{a.productId?.title}</span>
@@ -196,7 +237,10 @@ export default function SellerDashboard({
               className="bg-zinc-800 p-2 rounded w-full mb-3"
               value={auctionForm.startingPrice}
               onChange={(e) =>
-                setAuctionForm({ ...auctionForm, startingPrice: e.target.value })
+                setAuctionForm({
+                  ...auctionForm,
+                  startingPrice: e.target.value
+                })
               }
             />
 
@@ -205,7 +249,10 @@ export default function SellerDashboard({
               className="bg-zinc-800 p-2 rounded w-full mb-4"
               value={auctionForm.endTime}
               onChange={(e) =>
-                setAuctionForm({ ...auctionForm, endTime: e.target.value })
+                setAuctionForm({
+                  ...auctionForm,
+                  endTime: e.target.value
+                })
               }
             />
 
